@@ -28,6 +28,7 @@ async def health_check():
     return {"status": "ok", "version": "0.1.0"}
 
 
-# Роутеры подключаются здесь по мере создания модулей:
-# from api.routers import accounts, entries, counterparties, reports
-# app.include_router(accounts.router, prefix="/api/v1/accounts", tags=["accounts"])
+# Роутеры модулей
+from modules.chart_of_accounts.router import router as coa_router
+
+app.include_router(coa_router, prefix="/api/v1/accounts", tags=["Chart of Accounts"])

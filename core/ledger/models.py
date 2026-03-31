@@ -62,7 +62,9 @@ class Account(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     code: Mapped[str] = mapped_column(String(20), unique=True, nullable=False)
-    name: Mapped[str] = mapped_column(String(300), nullable=False)
+    # Локализация: основной язык — азербайджанский, английский — второй
+    name_az: Mapped[str] = mapped_column(String(300), nullable=False)
+    name_en: Mapped[str | None] = mapped_column(String(300), nullable=True)
     account_type: Mapped[AccountType] = mapped_column(String(20), nullable=False)
     is_leaf: Mapped[bool] = mapped_column(Boolean, default=True)  # только листья принимают проводки
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
@@ -75,6 +77,11 @@ class Account(Base):
         UUID(as_uuid=True), ForeignKey("gl_books.id"), nullable=False
     )
 
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), onupdate=func.now()
+    )
+
     parent: Mapped["Account | None"] = relationship("Account", remote_side="Account.id")
     children: Mapped[list["Account"]] = relationship("Account", back_populates="parent",
                                                        foreign_keys=[parent_id])
@@ -82,7 +89,7 @@ class Account(Base):
     lines: Mapped[list["JournalLine"]] = relationship(back_populates="account")
 
     def __repr__(self) -> str:
-        return f"Account({self.code} — {self.name})"
+        return f"Account({self.code} — {self.name_az})"
 
 
 class JournalEntry(Base):
